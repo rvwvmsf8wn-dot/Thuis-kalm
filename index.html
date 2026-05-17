@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>Thuis & Kalm</title>
+  <meta name="description" content="Kleine stapjes voor een schoner huis. Speciaal voor moeilijke dagen." />
+  <meta name="theme-color" content="#C9B8E8" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Thuis & Kalm" />
+
+  <!-- PWA Manifest inline -->
+
+  <link rel="manifest" href="manifest.json" />
+
+  <!-- Apple touch icon (SVG inline via data URI) -->
+
+  <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='40' fill='%23C9B8E8'/%3E%3Ctext x='96' y='130' font-size='100' text-anchor='middle'%3E🏡%3C/text%3E%3C/svg%3E" />
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    body {
+      font-family: Georgia, 'Times New Roman', serif;
+      background: linear-gradient(160deg, #FFF9F0 0%, #F0EBF8 100%);
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: flex;
+      justify-content: center;
+    }
+    #app {
+      width: 100%;
+      max-width: 420px;
+      min-height: 100vh;
+      min-height: 100dvh;
+      overflow-y: auto;
+      position: relative;
+    }
+
+    /* Header */
+    .header {
+      background: linear-gradient(135deg, #C9B8E8 0%, #A8D5BA 100%);
+      padding: 48px 24px 20px;
+      border-radius: 0 0 32px 32px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+    .header-top { display: flex; justify-content: space-between; align-items: flex-start; }
+    .header h1 { font-size: 1.7rem; color: #3D2B6B; letter-spacing: -0.5px; }
+    .header p { font-size: 0.85rem; color: #5A4080; opacity: 0.85; margin-top: 4px; }
+    .punten-badge {
+      background: white; border-radius: 16px; padding: 8px 14px;
+      text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .punten-badge .getal { font-size: 1.4rem; font-weight: bold; color: #7B5EA7; }
+    .punten-badge .label { font-size: 0.65rem; color: #999; margin-top: 1px; }
+
+    /* Progress bar */
+    .progress-wrap { margin-top: 16px; }
+    .progress-labels { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 0.75rem; color: #4A3570; }
+    .progress-bar { background: rgba(255,255,255,0.4); border-radius: 100px; height: 10px; overflow: hidden; }
+    .progress-fill { height: 100%; background: linear-gradient(90deg, #7B5EA7, #5BA890); border-radius: 100px; transition: width 0.5s ease; }
+
+    /* Motivatie */
+    .motivatie {
+      margin: 16px 16px 0;
+      background: white; border-radius: 16px; padding: 14px 18px;
+      border-left: 4px solid #C9B8E8;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+      font-size: 0.88rem; color: #5A4080; line-height: 1.5; font-style: italic;
+      transition: opacity 0.5s ease;
+    }
+
+    /* Kamer grid */
+    .sectie-titel { margin: 16px 16px 10px; font-size: 0.95rem; color: #5A4080; font-weight: normal; }
+    .kamer-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 0 16px; }
+    .kamer-kaart {
+      background: white; border-radius: 20px; padding: 18px 14px;
+      cursor: pointer; box-shadow: 0 3px 15px rgba(0,0,0,0.06);
+      border: 1.5px solid var(--kleur-light);
+      transition: transform 0.15s ease; position: relative; overflow: hidden;
+      -webkit-user-select: none; user-select: none;
+    }
+    .kamer-kaart:active { transform: scale(0.96); }
+    .kamer-kaart .deco {
+      position: absolute; top: 0; right: 0;
+      width: 60px; height: 60px;
+      background: var(--kleur-light);
+      border-radius: 0 0 0 60px;
+    }
+    .kamer-kaart .emoji { font-size: 2rem; margin-bottom: 8px; }
+    .kamer-kaart .naam { font-size: 0.95rem; font-weight: 600; color: #2D2040; margin-bottom: 4px; }
+    .kamer-kaart .sub { font-size: 0.72rem; color: #888; margin-bottom: 8px; }
+    .mini-bar { background: #F0F0F0; border-radius: 100px; height: 5px; overflow: hidden; }
+    .mini-fill { height: 100%; background: var(--kleur); border-radius: 100px; transition: width 0.4s ease; }
+
+    /* Tip box */
+    .tip-box {
+      margin: 16px 16px 0; background: white; border-radius: 16px; padding: 16px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+    .tip-box h4 { font-size: 0.88rem; color: #5A4080; margin-bottom: 8px; font-weight: 600; }
+    .tip-box p { font-size: 0.82rem; color: #666; line-height: 1.6; }
+
+    /* Reset knop */
+    .reset-btn {
+      margin: 16px; width: calc(100% - 32px);
+      background: none; border: 1.5px solid #DDD; border-radius: 12px;
+      padding: 12px; cursor: pointer; color: #AAA; font-size: 0.82rem;
+      font-family: inherit;
+    }
+
+    /* Kamer detail */
+    .detail-wrap { padding: 16px; }
+    .terug-btn {
+      background: none; border: none; cursor: pointer;
+      color: #7B5EA7; font-size: 0.9rem; padding: 0 0 12px;
+      display: flex; align-items: center; gap: 6px;
+      font-family: inherit;
+    }
+    .detail-kaart { background: white; border-radius: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.07); overflow: hidden; }
+    .detail-header {
+      padding: 20px; display: flex; align-items: center; gap: 12px;
+      background: var(--kleur-light2);
+    }
+    .detail-header .emoji { font-size: 2rem; }
+    .detail-header h2 { font-size: 1.3rem; color: #2D2040; margin-bottom: 2px; }
+    .detail-header p { font-size: 0.78rem; color: #5A4080; }
+    .taken-lijst { padding: 12px; }
+    .taak-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 13px 12px; margin-bottom: 6px;
+      border-radius: 12px; cursor: pointer;
+      transition: all 0.25s ease;
+      -webkit-user-select: none; user-select: none;
+    }
+    .taak-item:active { transform: scale(0.98); }
+    .taak-check {
+      width: 22px; height: 22px; border-radius: 50%;
+      border: 2px solid #CCC; background: white;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; transition: all 0.25s ease; font-size: 12px;
+    }
+    .taak-tekst { flex: 1; font-size: 0.9rem; color: #333; font-family: Georgia, serif; }
+    .taak-punten {
+      font-size: 0.72rem; padding: 2px 8px;
+      border-radius: 100px; font-weight: 600;
+    }
+
+    /* Feest overlay */
+    .feest {
+      position: fixed; inset: 0; z-index: 999;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(255,255,255,0.85);
+      flex-direction: column; gap: 12px;
+      animation: fadeIn 0.3s ease;
+    }
+    .feest .groot { font-size: 4rem; }
+    .feest .titel { font-size: 1.2rem; font-weight: bold; color: #7B5EA7; font-family: Georgia, serif; }
+    .feest .sub { font-size: 0.9rem; color: #888; }
+
+    @keyframes fadeIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+    @keyframes checkIn { 0% { transform: scale(0); } 60% { transform: scale(1.2); } 100% { transform: scale(1); } }
+    .check-anim { animation: checkIn 0.3s ease forwards; }
+  </style>
+
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+const KAMERS = [
+  {
+    id: "badkamer", naam: "Badkamer", emoji: "🚿",
+    kleur: "#7EC8E3", kleurLight: "#7EC8E322", kleurLight2: "linear-gradient(135deg,#7EC8E344,#7EC8E322)",
+    taken: [
+      { id: "b1", tekst: "Gooi lege flessen weg", punten: 5 },
+      { id: "b2", tekst: "Veeg de vloer", punten: 10 },
+      { id: "b3", tekst: "Poets de wastafel", punten: 10 },
+      { id: "b4", tekst: "Hang een schone handdoek", punten: 5 },
+      { id: "b5", tekst: "Poets de spiegel", punten: 8 },
+      { id: "b6", tekst: "Maak het toilet schoon", punten: 15 },
+    ]
+  },
+  {
+    id: "slaapkamer", naam: "Slaapkamer", emoji: "🛏️",
+    kleur: "#B5A8D5", kleurLight: "#B5A8D522", kleurLight2: "linear-gradient(135deg,#B5A8D544,#B5A8D522)",
+    taken: [
+      { id: "s1", tekst: "Trek je dekbed recht", punten: 5 },
+      { id: "s2", tekst: "Raap kleren van de vloer op", punten: 8 },
+      { id: "s3", tekst: "Open het raam even", punten: 5 },
+      { id: "s4", tekst: "Zet je glas/kopjes naar de keuken", punten: 5 },
+      { id: "s5", tekst: "Stof je nachtkastje af", punten: 8 },
+      { id: "s6", tekst: "Ververs je kussensloop", punten: 10 },
+    ]
+  },
+  {
+    id: "keuken", naam: "Keuken", emoji: "🍳",
+    kleur: "#F4A46A", kleurLight: "#F4A46A22", kleurLight2: "linear-gradient(135deg,#F4A46A44,#F4A46A22)",
+    taken: [
+      { id: "k1", tekst: "Gooi oud eten weg", punten: 8 },
+      { id: "k2", tekst: "Doe de afwas (of vaatwasser aan)", punten: 15 },
+      { id: "k3", tekst: "Veeg het aanrecht af", punten: 10 },
+      { id: "k4", tekst: "Gooi vuilniszak leeg", punten: 10 },
+      { id: "k5", tekst: "Veeg de vloer", punten: 10 },
+      { id: "k6", tekst: "Zet lege flessen/blikjes weg", punten: 5 },
+    ]
+  },
+  {
+    id: "woonkamer", naam: "Woonkamer", emoji: "🛋️",
+    kleur: "#82C9A0", kleurLight: "#82C9A022", kleurLight2: "linear-gradient(135deg,#82C9A044,#82C9A022)",
+    taken: [
+      { id: "w1", tekst: "Ruim 3 dingen op van de bank", punten: 5 },
+      { id: "w2", tekst: "Pak rommel van de vloer op", punten: 8 },
+      { id: "w3", tekst: "Trek de gordijnen open", punten: 5 },
+      { id: "w4", tekst: "Stof de tafel af", punten: 8 },
+      { id: "w5", tekst: "Stofzuig een gedeelte", punten: 12 },
+      { id: "w6", tekst: "Zet glas/borden naar de keuken", punten: 5 },
+    ]
+  }
+];
+
+const MOTIVATIES = [
+  "Eén kleine stap tegelijk. Je doet het geweldig! 💛",
+  "Het hoeft niet perfect — goed genoeg is meer dan genoeg. 🌿",
+  "Je zorgt voor jezelf, en dat is dapper. 🌸",
+  "Kleine stapjes tellen ook. Trots op jou! ⭐",
+  "Je bent sterker dan je denkt. Ga zo door! 🌈",
+  "Elke taak is een cadeau aan je toekomstige zelf. 🎁",
+  "Rustig aan. Je hoeft niet alles in één dag te doen. 🍃",
+  "Het lukt je. Kijk maar, je bent al bezig! 💪",
+];
+
+// State
+let gedaan = JSON.parse(localStorage.getItem("gedaan") || "{}");
+let punten = parseInt(localStorage.getItem("punten") || "0");
+let activekamer = null;
+let motivatieIdx = 0;
+let feestActief = false;
+
+function slaOp() {
+  localStorage.setItem("gedaan", JSON.stringify(gedaan));
+  localStorage.setItem("punten", punten.toString());
+}
+
+function totaalGedaan() { return Object.values(gedaan).filter(Boolean).length; }
+function totaalTaken() { return KAMERS.reduce((s, k) => s + k.taken.length, 0); }
+function pct() { return Math.round((totaalGedaan() / totaalTaken()) * 100); }
+function kamerGedaan(k) { return k.taken.filter(t => gedaan[t.id]).length; }
+
+function render() {
+  const app = document.getElementById("app");
+  app.innerHTML = activekamer ? renderDetail() : renderHome();
+  bindEvents();
+}
+
+function renderHome() {
+  return `
+    ${feestActief ? `<div class="feest"><div class="groot">🎉</div><div class="titel">Geweldig gedaan!</div><div class="sub">Je hebt 50 punten behaald!</div></div>` : ""}
+    <div class="header">
+      <div class="header-top">
+        <div>
+          <h1>Thuis &amp; Kalm</h1>
+          <p>Kleine stapjes, grote rust</p>
+        </div>
+        <div class="punten-badge">
+          <div class="getal">⭐ ${punten}</div>
+          <div class="label">punten</div>
+        </div>
+      </div>
+      <div class="progress-wrap">
+        <div class="progress-labels">
+          <span>Vandaag: ${totaalGedaan()}/${totaalTaken()} taken</span>
+          <span>${pct()}%</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" style="width:${pct()}%"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="motivatie">${MOTIVATIES[motivatieIdx]}</div>
+
+    <p class="sectie-titel">Kies een kamer om te beginnen:</p>
+    <div class="kamer-grid">
+      ${KAMERS.map(k => {
+        const gd = kamerGedaan(k);
+        const p = Math.round((gd / k.taken.length) * 100);
+        return `
+          <div class="kamer-kaart" data-kamer="${k.id}" style="--kleur:${k.kleur};--kleur-light:${k.kleurLight}">
+            <div class="deco"></div>
+            <div class="emoji">${k.emoji}</div>
+            <div class="naam">${k.naam}</div>
+            <div class="sub">${gd}/${k.taken.length} taken</div>
+            <div class="mini-bar"><div class="mini-fill" style="width:${p}%"></div></div>
+          </div>`;
+      }).join("")}
+    </div>
+
+    <div class="tip-box">
+      <h4>💡 Tip voor vandaag</h4>
+      <p>Begin met <strong>één kleine taak</strong>. Je hoeft niet alles te doen. Zelfs één ding opruimen maakt verschil — voor je huis én voor hoe je je voelt.</p>
+    </div>
+
+    <button class="reset-btn" id="resetBtn">🔄 Nieuwe dag — alles resetten</button>
+  `;
+}
+
+function renderDetail() {
+  const k = KAMERS.find(k => k.id === activekamer);
+  const gd = kamerGedaan(k);
+  return `
+    <div class="detail-wrap">
+      <button class="terug-btn" id="terugBtn">← Alle kamers</button>
+      <div class="detail-kaart">
+        <div class="detail-header" style="--kleur-light2:${k.kleurLight2};background:${k.kleurLight2}">
+          <span class="emoji">${k.emoji}</span>
+          <div>
+            <h2>${k.naam}</h2>
+            <p>${gd}/${k.taken.length} taken gedaan</p>
+          </div>
+        </div>
+        <div class="taken-lijst">
+          ${k.taken.map(t => {
+            const isGedaan = gedaan[t.id];
+            return `
+              <div class="taak-item" data-taak="${t.id}" data-punten="${t.punten}"
+                style="background:${isGedaan ? k.kleur + "22" : "#FAFAFA"};border:1.5px solid ${isGedaan ? k.kleur : "#EEE"}">
+                <div class="taak-check" style="border-color:${isGedaan ? k.kleur : "#CCC"};background:${isGedaan ? k.kleur : "white"}">
+                  ${isGedaan ? '<span style="color:white">✓</span>' : ""}
+                </div>
+                <span class="taak-tekst" style="text-decoration:${isGedaan ? "line-through" : "none"};opacity:${isGedaan ? 0.6 : 1}">
+                  ${t.tekst}
+                </span>
+                <span class="taak-punten" style="color:${k.kleur};background:${k.kleur}22">+${t.punten}</span>
+              </div>`;
+          }).join("")}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function bindEvents() {
+  document.querySelectorAll(".kamer-kaart").forEach(el => {
+    el.addEventListener("click", () => {
+      activekamer = el.dataset.kamer;
+      render();
+    });
+  });
+
+  const terug = document.getElementById("terugBtn");
+  if (terug) terug.addEventListener("click", () => { activekamer = null; render(); });
+
+  const reset = document.getElementById("resetBtn");
+  if (reset) reset.addEventListener("click", () => {
+    if (confirm("Weet je zeker dat je alles wil resetten?")) {
+      gedaan = {}; punten = 0; slaOp(); render();
+    }
+  });
+
+  document.querySelectorAll(".taak-item").forEach(el => {
+    el.addEventListener("click", () => {
+      const id = el.dataset.taak;
+      const p = parseInt(el.dataset.punten);
+      const was = gedaan[id];
+      gedaan[id] = !was;
+      if (!was) {
+        punten += p;
+        if (punten >= 50 && !feestActief) {
+          feestActief = true;
+          render();
+          setTimeout(() => { feestActief = false; render(); }, 2800);
+          return;
+        }
+      } else {
+        punten = Math.max(0, punten - p);
+      }
+      slaOp();
+      render();
+    });
+  });
+}
+
+// Motivatie wisselen
+setInterval(() => {
+  motivatieIdx = (motivatieIdx + 1) % MOTIVATIES.length;
+  const el = document.querySelector(".motivatie");
+  if (el) { el.style.opacity = 0; setTimeout(() => { el.textContent = MOTIVATIES[motivatieIdx]; el.style.opacity = 1; }, 300); }
+}, 15000);
+
+// Service Worker registreren
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("sw.js").catch(() => {});
+}
+
+render();
+</script>
+
+</body>
+</html>
